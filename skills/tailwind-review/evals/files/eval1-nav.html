@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Nav Sample</title>
+</head>
+<body>
+  <!-- ナビゲーション: v3のspace-y / 冗長クラス / HTML a11y問題あり -->
+  <!-- aria-label なし、リンクリストが ul/li で囲まれていない -->
+  <nav class="flex block bg-white shadow-md px-6 py-4">
+    <div class="space-y-2 flex flex-col">
+      <a href="/" class="text-gray-800 hover:text-blue-600">Home</a>
+      <a href="/about" class="text-gray-800 hover:text-blue-600">About</a>
+      <a href="/contact" class="text-gray-800 hover:text-blue-600">Contact</a>
+    </div>
+    <!-- hidden と flex の矛盾、space-x-4 v4非推奨 -->
+    <div class="space-x-4 hidden flex items-center ml-auto">
+      <!-- button に type なし、テキストが大文字直書き -->
+      <button class="bg-blue-600 text-white px-4 py-2 rounded">LOGIN</button>
+      <button class="border border-gray-300 px-4 py-2 rounded">SIGN UP</button>
+    </div>
+  </nav>
+</body>
+</html>

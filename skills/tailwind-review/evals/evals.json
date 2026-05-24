@@ -1,0 +1,48 @@
+{
+  "skill_name": "tailwind-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "このHTMLファイルの Tailwind CSS をレビューしてください: evals/files/eval1-nav.html",
+      "expected_output": "flex と block の矛盾、space-y-2 と space-x-4 の v4 非推奨、hidden と flex の矛盾、LOGIN/SIGN UP の大文字テキスト、nav の aria-label なし・ul/li なし・button の type なしが検出・報告されること",
+      "files": ["evals/files/eval1-nav.html"],
+      "expectations": [
+        "`flex` と `block` が同時指定されている冗長性を検出している",
+        "`space-y-2` が v4 非推奨として報告されている",
+        "`space-x-4` が v4 非推奨として報告されている",
+        "`hidden` と `flex` の矛盾を検出している",
+        "LOGIN や SIGN UP などHTMLに直書きされた大文字テキストのアクセシビリティ問題を報告している",
+        "<nav> に aria-label がないことを HTML a11y として報告している",
+        "<button> に type 属性がないことを HTML a11y として報告している",
+        "各問題に対して修正案が提示されている"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "evals/files/eval2-card.tsx をレビューして。style.css には @theme { --color-primary: #1e40af; --color-accent: #f59e0b; } が定義されています",
+      "expected_output": "ハードコードされた色値 (#1e40af, #f59e0b, #e5e7eb) がテーマ変数への置き換え提案として報告されること。w-[320px] → w-80、text-[18px] → text-lg などのスケール変換も提案されること",
+      "files": ["evals/files/eval2-card.tsx"],
+      "expectations": [
+        "`text-[#1e40af]` → `text-primary` への置き換えが提案されている",
+        "`bg-[#1e40af]` → `bg-primary` への置き換えが提案されている",
+        "`text-[#f59e0b]` → `text-accent` への置き換えが提案されている",
+        "`w-[320px]` → `w-80` などのTailwindスケールへの変換が提案されている",
+        "`text-[14px]` や `text-[18px]` などのフォントサイズ任意値が標準スケールへの変換として提案されている"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "evals/files/eval3-hero.html の Tailwind を全観点でレビューして、問題をすべて洗い出してください",
+      "expected_output": "5つの観点すべてで問題が検出されること。space-x-4/space-y-6（v4非推奨）、flex+block矛盾、GET STARTED / LEARN MORE / WELCOME TO の大文字直書き、text-gray-300のコントラスト警告",
+      "files": ["evals/files/eval3-hero.html"],
+      "expectations": [
+        "`space-x-4` の v4 非推奨が報告されている",
+        "`space-y-6` の v4 非推奨が報告されている",
+        "`flex` と `block` の矛盾が検出されている",
+        "GET STARTED / LEARN MORE など HTMLに直書きされた大文字テキストのa11y問題が報告されている",
+        "`text-gray-300` のコントラスト問題が警告されている",
+        "5つの観点すべてに言及したサマリーが出力されている"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+# tailwind-review — Tailwind CSS Review & Optimization Skill
+
+A Claude Code skill that reviews Tailwind CSS code across 5 dimensions and provides improvement suggestions or applies automatic fixes. Works with plain HTML, React, Vue, Svelte, and any other framework.
+
+---
+
+## What this is
+
+Tailwind classes accumulate noise over time — conflicting utilities, deprecated v3 patterns, hardcoded colors that should be design tokens, and accessibility issues that are easy to miss. This skill makes all of that visible in a single pass.
+
+```
+File(s)  →  tailwind-review  →  Scored report across 5 dimensions
+                             →  Auto-fixable items highlighted
+                             →  Optional: apply fixes directly
+```
+
+---
+
+## The 5 dimensions
+
+| # | Dimension | What is checked |
+|---|-----------|-----------------|
+| 1 | **Class redundancy** | Conflicting classes (`flex` + `block`), meaningless duplicates, shared-child consolidation with `*:` variant, `cn()` / `clsx` adoption |
+| 2 | **v3 → v4 migration** | Removed utilities (`space-y-*`, `space-x-*`, opacity modifiers), renamed classes (`flex-shrink` → `shrink`), scale shifts (`shadow-sm` → `shadow-xs`) |
+| 3 | **Design token usage** | Arbitrary values (`text-[#294779]`, `w-[320px]`) that can be replaced with `@theme` variables or Tailwind scale values |
+| 4 | **Accessibility (Tailwind)** | Uppercase text written directly in HTML, low-contrast color classes, `hidden` vs `sr-only` for form labels |
+| 5 | **HTML structure a11y** | `<nav>` without `aria-label`, missing `aria-current`, `<button>` without `type`, missing `<label>` for inputs, broken heading hierarchy |
+
+---
+
+> **⚠️ Backup before applying auto-fixes**
+>
+> Auto-fixes edit files directly. Results are generally reliable, but always make sure you can revert changes before applying them.
+>
+> - If you use Git: run `git status` to check for uncommitted changes, then `git stash` or `git commit` before proceeding.
+> - If you don't use Git: make a manual backup of the target files.
+>
+> ---
+>
+> **⚠️ 自動修正を適用する前にバックアップを**
+>
+> 自動修正はファイルを直接書き換えます。通常は正しく適用されますが、意図しない変更が生じることもあります。適用前に必ず元に戻せる状態にしておいてください。
+>
+> - Git を使っている場合は `git status` で未コミットの変更を確認し、`git stash` または `git commit` で保存してから実行してください。
+> - Git を使っていない場合は、対象ファイルを手動でバックアップしておいてください。
+
+---
+
+## Repo structure
+
+```
+skills/
+  tailwind-review/
+    SKILL.md          — skill definition loaded by Claude Code
+    evals/
+      evals.json      — test case definitions
+      files/
+        eval1-nav.html    — nav with redundancy, v4 issues, and a11y problems
+        eval2-card.tsx    — card component with hardcoded colors and arbitrary values
+        eval3-hero.html   — hero section covering all 5 dimensions
+```
+
+## Running the evals
+
+The `evals/` directory contains sample files and expected outputs to verify the skill is working correctly — useful after modifying `SKILL.md` or when checking behavior on a new Claude model.
+
+`evals/` ディレクトリには、スキルが正しく動作しているかを確認するためのサンプルファイルと期待値が含まれています。`SKILL.md` を変更したときや、新しい Claude モデルで動作確認したいときに使えます。
+
+**How to use / 使い方:**
+
+1. Open a Claude Code session in the project root
+   / プロジェクトルートで Claude Code セッションを開く
+2. Pick a test case from `evals/evals.json` and run its `prompt` as-is
+   / `evals/evals.json` からテストケースを選び、`prompt` の内容をそのまま実行する
+3. Compare the output against the `expectations` list for that case
+   / 出力結果を同じケースの `expectations` リストと照合する
+
+```
+# Example — eval 1
+/tailwind-review evals/files/eval1-nav.html
+```
+
+Each test case documents what should be detected. No automated runner is included — manual spot-checking is enough for a skill this size.
+
+各テストケースには「何が検出されるべきか」が記載されています。自動実行の仕組みはなく、手動での確認を想定しています。
+
+| File | What it tests / テスト内容 |
+|------|--------------------------|
+| `eval1-nav.html` | Class redundancy, v3 deprecated classes, uppercase text, missing `aria-label`, missing `button type` / クラスの冗長性・v3非推奨クラス・大文字テキスト・`aria-label` なし・`button type` なし |
+| `eval2-card.tsx` | Design token suggestions, arbitrary value → scale conversions / デザイントークン置き換え提案・任意値のスケール変換 |
+| `eval3-hero.html` | All 5 dimensions in one file / 5つの観点すべてをカバー |
+
+---
+
+## Getting started
+
+**1. Clone this repo**
+
+```bash
+git clone https://github.com/gaspanik/tailwind-review-skill
+```
+
+**2. Install the skill into Claude Code**
+
+```bash
+cp -r skills/tailwind-review ~/.claude/skills/
+```
+
+**3. Run the review**
+
+Invoke the skill with a slash command or describe what you want — both work:
+
+```
+/tailwind-review
+```
+
+```
+このファイルのTailwindクラスをレビューして: src/components/Hero.tsx
+```
+
+```
+Can you review my Tailwind classes? I think something broke after upgrading to v4.
+```
+
+The skill auto-detects the Tailwind version, identifies target files if none are specified, and responds in whatever language you use in the conversation.
+
+---
+
+## When the skill is triggered automatically
+
+The skill description instructs Claude to use it whenever:
+
+- Asked to "review", "clean up", "check", or "look at" Tailwind classes
+- v3 classes like `space-y-*`, `flex-shrink`, `shadow-sm`, or `bg-opacity-*` are present
+- Hardcoded arbitrary values like `text-[#1e40af]` or `w-[320px]` are found
+- Conflicting classes like `flex` and `block` on the same element are found
+- Asked whether to use `cn()` / `clsx`, or to consolidate with `*:` variants
+- Asked to migrate from v3 to v4
+- Reviewing `.html`, `.tsx`, `.jsx`, or `.vue` files that use Tailwind
+
+---
+
+## What auto-fix applies
+
+| Item | Auto-fixable |
+|------|-------------|
+| Conflicting / redundant classes | Yes |
+| v3 → v4 class renames (`flex-shrink` → `shrink`, etc.) | Yes |
+| Opacity modifiers (`bg-opacity-50` → `bg-black/50`) | Yes |
+| Scale shifts (`shadow-sm` → `shadow-xs`) | Yes |
+| CSS entry file (`@tailwind base` → `@import "tailwindcss"`) | Yes (with confirmation) |
+| `space-y-*` / `space-x-*` conversions | Manual judgment required |
+| Design token replacements | Suggested, user confirms |
+| Accessibility issues | Suggested, user confirms |
+
+---
+
+## Troubleshooting
+
+| Issue | Fix |
+|-------|-----|
+| No files found | Make sure you are running from the project root, or pass the file path explicitly |
+| Tailwind version could not be detected | The skill will ask — answer `v3` or `v4` |
+| Scale-shift warnings on a v3 project | These only apply to v4. Confirm your version and re-run |
+| `@theme` block not found | The design token dimension is skipped. Add a `@theme {}` block to your CSS entry file to enable it |
+| Auto-fix introduced a regression | Revert with `git checkout` or restore from your backup, then re-run with review-only mode |
+
+---
+
+## Agent settings
+
+- Use the most capable Claude model available. The review synthesizes findings across multiple dimensions and files — a stronger model produces more precise, context-aware suggestions.
+- The `SKILL.md` format and `allowed-tools` frontmatter are Claude Code-specific. To use this with another agent (Cursor, Windsurf, etc.), copy the prompt body from `SKILL.md` into that agent's rule format — the review logic is plain markdown and transfers without modification.
+
+---
+
+Built by Masaaki Komori - [@cipher](https://x.com/cipher) · Skill for [Claude Code](https://claude.ai/code)

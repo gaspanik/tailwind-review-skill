@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hero Section</title>
+</head>
+<body>
+  <!-- ヒーローセクション: アクセシビリティ・v4・冗長性の複合 -->
+  <section class="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+
+    <!-- 大文字がHTMLに直書きされている -->
+    <span class="text-sm tracking-widest text-gray-400 uppercase-text">WELCOME TO OUR STORE</span>
+
+    <h1 class="text-4xl font-bold text-gray-900 mt-4 mb-4">最高の体験を</h1>
+
+    <p class="text-gray-300 max-w-[600px] text-center text-lg">
+      私たちのサービスはあなたの生活をより豊かにします。
+    </p>
+
+    <!-- space-x は v4 非推奨 -->
+    <div class="space-x-4 mt-8">
+      <a href="#" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg">
+        GET STARTED
+      </a>
+      <a href="#" class="inline-block border border-gray-300 text-gray-600 px-6 py-3 rounded-lg">
+        LEARN MORE
+      </a>
+    </div>
+
+    <!-- flex と block の矛盾、space-y も -->
+    <div class="space-y-6 flex block mt-16">
+      <div class="text-center">
+        <p class="text-2xl font-bold">100+</p>
+        <p class="text-gray-500 text-sm">Products</p>
+      </div>
+      <div class="text-center">
+        <p class="text-2xl font-bold">50K+</p>
+        <p class="text-gray-500 text-sm">Customers</p>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
