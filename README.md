@@ -115,6 +115,10 @@ Invoke the skill with a slash command or describe what you want — both work:
 ```
 
 ```
+このディレクトリのTailwindクラスをレビューして
+```
+
+```
 このファイルのTailwindクラスをレビューして: src/components/Hero.tsx
 ```
 
