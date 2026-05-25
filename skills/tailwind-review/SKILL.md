@@ -748,6 +748,45 @@ Even when no `@theme` variables are defined, compare hardcoded hex / rgb color v
 
 ---
 
+### 3-D: Simplifiable Arbitrary Values (v4)
+
+In Tailwind v4, certain arbitrary values can be written as native utilities without brackets.
+Detect these and suggest the shorter form. This avoids linter warnings (e.g. Biome) and improves readability.
+
+**Detection targets and conversions:**
+
+| Pattern | Example | Fix |
+|---|---|---|
+| `aspect-[N/M]` | `aspect-[16/7]` | `aspect-16/7` |
+| `aspect-[N/M]` | `aspect-[4/3]` | `aspect-4/3` |
+| `w-[N/M]` | `w-[1/2]` | `w-1/2` |
+| `w-[N/M]` | `w-[2/3]` | `w-2/3` |
+
+Only apply `w-[N/M]` → `w-N/M` when both N and M are plain integers (standard Tailwind fraction utilities). Keep other `w-[*]` arbitrary values as-is (e.g. `w-[320px]`, `w-[calc(...)]`).
+
+**Detection:**
+
+```bash
+grep -rn -e "aspect-\[" -e "w-\[[0-9]" --include="*.html" --include="*.tsx" --include="*.jsx" --include="*.vue" . | grep -v "node_modules" | grep -v "dist"
+```
+
+> **Note:** Only simplify `N/M` ratio patterns inside brackets. Keep all other arbitrary values as-is.
+
+**Report format:**
+```
+[Simplify] <filename>:<line>
+  Issue: `aspect-[16/7]` can be written as `aspect-16/7` in Tailwind v4
+  Current: class="... aspect-[16/7] ..."
+  Fix:     class="... aspect-16/7 ..."
+
+[Simplify] <filename>:<line>
+  Issue: `w-[1/2]` can be written as `w-1/2`
+  Current: class="... w-[1/2] ..."
+  Fix:     class="... w-1/2 ..."
+```
+
+---
+
 ## Dimension 4: Accessibility Check (Tailwind)
 
 Check whether visual styling choices harm accessibility.
