@@ -10,8 +10,8 @@ description: >
   · Asked whether to use `cn()` / `clsx`, or whether to consolidate with `*:` variants
   · Asked to migrate or rewrite from v3 to v4
   · Asked to check HTML accessibility structure: `aria-label`, `ul/li`, `button type`, `label`, etc.
-  · Asked to review `.html`, `.tsx`, `.jsx`, or `.vue` files (if Tailwind is used)
-  Framework-agnostic (HTML / React / Vue / Svelte, etc.).
+  · Asked to review `.html`, `.tsx`, `.jsx`, `.vue`, or `.astro` files (if Tailwind is used)
+  Framework-agnostic (HTML / React / Vue / Svelte / Astro, etc.).
   Also use for vague requests like "something looks off with the classes", "the design changed after upgrading to v4", or "migrating from CSS modules".
 ---
 
@@ -132,7 +132,7 @@ Are you using v3 or v4?
 If no files are specified, search the project for HTML / JSX / TSX / Vue / Svelte files containing Tailwind classes.
 
 ```bash
-grep -rl "class=" . --include="*.html" --include="*.tsx" --include="*.jsx" --include="*.vue" | grep -v "node_modules" | grep -v "dist"
+grep -rl "class=" . --include="*.html" --include="*.tsx" --include="*.jsx" --include="*.vue" --include="*.astro" | grep -v "node_modules" | grep -v "dist"
 ```
 
 ### Step 1.5: Confirm Review Scope (HTML files only)
@@ -248,9 +248,9 @@ Typical patterns: nav links, list items, footer columns.
 - `*:` applies to **direct children only** (not grandchildren) — mention this if nesting could cause unexpected scope.
 - Available in Tailwind v3.1+ / v4. Do not suggest in older v3 projects.
 
-### cn() / Class Merge Function Suggestion (React / TSX only)
+### cn() / Class Merge Function Suggestion (React / TSX / Astro)
 
-For `.tsx` / `.jsx` files, also check whether a **class merge function** is in use.
+For `.tsx` / `.jsx` / `.astro` files, also check whether a **class merge function** is in use.
 Skip this check for HTML and Vue files.
 
 **Step 1: Check adoption status**
@@ -260,8 +260,8 @@ Skip this check for HTML and Vue files.
 grep -E '"clsx"|"tailwind-merge"|"class-variance-authority"' package.json
 
 # Check if cn() / clsx() are already used in code
-grep -r "cn(" --include="*.tsx" --include="*.ts" src/ | grep -v "node_modules" | head -5
-grep -r "clsx(" --include="*.tsx" --include="*.ts" src/ | grep -v "node_modules" | head -5
+grep -r "cn(" --include="*.tsx" --include="*.ts" --include="*.astro" src/ | grep -v "node_modules" | head -5
+grep -r "clsx(" --include="*.tsx" --include="*.ts" --include="*.astro" src/ | grep -v "node_modules" | head -5
 ```
 
 **Step 2: Respond based on status**
@@ -404,7 +404,7 @@ grep -rn \
   -e "ring-opacity-" -e "divide-opacity-" -e "placeholder-opacity-" \
   -e "overflow-ellipsis" -e "outline-none" \
   -e "\!flex\b" -e "\!block\b" -e "\!hidden\b" \
-  --include="*.html" --include="*.tsx" --include="*.jsx" --include="*.vue" \
+  --include="*.html" --include="*.tsx" --include="*.jsx" --include="*.vue" --include="*.astro" \
   . | grep -v "node_modules" | grep -v "dist"
 ```
 
@@ -767,7 +767,7 @@ Only apply `w-[N/M]` → `w-N/M` when both N and M are plain integers (standard 
 **Detection:**
 
 ```bash
-grep -rn -e "aspect-\[" -e "w-\[[0-9]" --include="*.html" --include="*.tsx" --include="*.jsx" --include="*.vue" . | grep -v "node_modules" | grep -v "dist"
+grep -rn -e "aspect-\[" -e "w-\[[0-9]" --include="*.html" --include="*.tsx" --include="*.jsx" --include="*.vue" --include="*.astro" . | grep -v "node_modules" | grep -v "dist"
 ```
 
 > **Note:** Only simplify `N/M` ratio patterns inside brackets. Keep all other arbitrary values as-is.
@@ -904,7 +904,7 @@ Would you like to apply auto-fixable items (redundancy, v4 migration, scale conv
 
 ## Notes
 
-- **Framework-agnostic**: Both `class=` (HTML/Vue) and `className=` (React) are in scope
+- **Framework-agnostic**: Both `class=` (HTML/Vue/Astro) and `className=` (React) are in scope
 - **Custom classes**: Classes defined via `@apply` are not Tailwind utilities and are excluded from redundancy checks
 - **Context matters**: Even `space-y-*` may be intentional — strongly recommend the v4 migration path but explain the impact
 - **Missing `@theme`**: If no theme file is found, report it and skip the design token check

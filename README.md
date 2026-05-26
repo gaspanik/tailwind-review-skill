@@ -1,6 +1,6 @@
 # tailwind-review — Tailwind CSS Review & Optimization Skill
 
-A Claude Code skill that reviews Tailwind CSS code across 5 dimensions and provides improvement suggestions or applies automatic fixes. Works with plain HTML, React, Vue, Svelte, and any other framework.
+A Claude Code skill that reviews Tailwind CSS code across 5 dimensions and provides improvement suggestions or applies automatic fixes. Works with plain HTML, React, Vue, Svelte, Astro, and any other framework.
 
 ---
 
@@ -164,7 +164,7 @@ The skill description instructs Claude to use it whenever:
 - Conflicting classes like `flex` and `block` on the same element are found
 - Asked whether to use `cn()` / `clsx`, or to consolidate with `*:` variants
 - Asked to migrate from v3 to v4
-- Reviewing `.html`, `.tsx`, `.jsx`, or `.vue` files that use Tailwind
+- Reviewing `.html`, `.tsx`, `.jsx`, `.vue`, or `.astro` files that use Tailwind
 
 ---
 
