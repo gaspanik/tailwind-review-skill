@@ -384,6 +384,18 @@ These won't throw errors, making them easy to miss.
 |---|---|
 | `bg-[--brand-color]` | `bg-(--brand-color)` |
 
+**[Renamed] Gradient utilities**
+| v3 (old) | v4 (new) |
+|---|---|
+| `bg-gradient-to-t` | `bg-linear-to-t` |
+| `bg-gradient-to-tr` | `bg-linear-to-tr` |
+| `bg-gradient-to-r` | `bg-linear-to-r` |
+| `bg-gradient-to-br` | `bg-linear-to-br` |
+| `bg-gradient-to-b` | `bg-linear-to-b` |
+| `bg-gradient-to-bl` | `bg-linear-to-bl` |
+| `bg-gradient-to-l` | `bg-linear-to-l` |
+| `bg-gradient-to-tl` | `bg-linear-to-tl` |
+
 **[Changed] Other**
 | v3 | v4 |
 |---|---|
@@ -403,6 +415,7 @@ grep -rn \
   -e "bg-opacity-" -e "text-opacity-" -e "border-opacity-" \
   -e "ring-opacity-" -e "divide-opacity-" -e "placeholder-opacity-" \
   -e "overflow-ellipsis" -e "outline-none" \
+  -e "bg-gradient-to-" \
   -e "\!flex\b" -e "\!block\b" -e "\!hidden\b" \
   --include="*.html" --include="*.tsx" --include="*.jsx" --include="*.vue" --include="*.astro" \
   . | grep -v "node_modules" | grep -v "dist"
