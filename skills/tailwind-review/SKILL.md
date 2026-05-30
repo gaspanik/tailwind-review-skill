@@ -800,6 +800,30 @@ grep -rn -e "aspect-\[" -e "w-\[[0-9]" --include="*.html" --include="*.tsx" --in
 
 ---
 
+### 3-E: `text-xs` without `leading-tight`
+
+`text-xs` is very small (12px / 0.75rem). Without an explicit line-height, browsers apply `leading-normal` (1.5), which leaves too much space between lines at that size. `leading-tight` (1.25) fits better.
+
+**Detection:** find `text-xs` that is **not** accompanied by any `leading-*` class on the same element.
+
+```bash
+grep -rn "text-xs" --include="*.html" --include="*.tsx" --include="*.jsx" --include="*.vue" --include="*.astro" . | grep -v "node_modules" | grep -v "dist"
+```
+
+Then filter results where no `leading-` class is present on the same element.
+
+**Report format (suggestion only — do not auto-apply):**
+```
+[Typography] <filename>:<line>
+  Suggestion: `text-xs` without `leading-*` — consider adding `leading-tight`
+  Current: class="text-xs text-gray-500"
+  Suggested: class="text-xs leading-tight text-gray-500"
+```
+
+> This is a suggestion, not a required fix. Skip if the element already has a `leading-*` class, or if the design intentionally uses looser spacing.
+
+---
+
 ## Dimension 4: Accessibility Check (Tailwind)
 
 Check whether visual styling choices harm accessibility.
