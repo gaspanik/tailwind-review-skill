@@ -94,18 +94,12 @@ grep -r "@tailwind\|@import.*tailwindcss" src/ --include="*.css" | head -5
 
 ---
 
-**If v3 is detected → present options to the user:**
+**If v3 is detected → ask via `AskUserQuestion`:**
 
-```
-Tailwind CSS v3 detected.
-
-How would you like to proceed?
-
-  1. Review only — report issues without rewriting
-  2. Migrate to v4 — rewrite to v4 syntax
-
-Which would you prefer? (1 / 2)
-```
+> "Tailwind CSS v3 detected. How would you like to proceed?"
+>
+> 1. Review only — report issues without rewriting
+> 2. Migrate to v4 — rewrite to v4 syntax
 
 - **Option 1 (Review only):** Dimension 2 reports issues in v3 code only. No rewrites.
 - **Option 2 (Migration):** Apply all conversions from the Dimension 2 table and rewrite the files.
@@ -118,12 +112,12 @@ If v3 patterns are found in a v4 project, report them as bugs.
 
 ---
 
-**If unknown:**
-Ask the user:
-```
-Could not determine the Tailwind version.
-Are you using v3 or v4?
-```
+**If unknown → ask via `AskUserQuestion`:**
+
+> "Could not determine the Tailwind version. Which are you using?"
+>
+> 1. v4
+> 2. v3
 
 ---
 
@@ -321,87 +315,19 @@ No report needed. Report any redundancy issues normally if found.
 
 ## Dimension 2: v3 → v4 Migration Check
 
-Detect deprecated or renamed classes in Tailwind CSS v4 and suggest v4 replacements.
+Detect v3-era classes that are removed, renamed, or behave differently in Tailwind CSS v4, and suggest v4 replacements.
 
-### Changes by Category
+### Change categories (overview)
 
-**[Removed] Spacing / Division**
-| v3 (removed) | v4 (recommended) |
-|---|---|
-| `space-x-*` | `flex` + `gap-*` |
-| `space-y-*` | `flex flex-col` + `gap-*` |
-| `divide-x` / `divide-y` | Add borders to individual child elements |
+Full conversion tables are in **`references/v3-to-v4.md`** (in this skill's directory) — **read it when any detection hits are found**, or when migration mode was chosen in Step 0.5.
 
-**[Removed] Opacity utilities → slash syntax**
-| v3 (removed) | v4 (recommended) |
-|---|---|
-| `bg-opacity-50` | `bg-black/50` |
-| `text-opacity-50` | `text-black/50` |
-| `border-opacity-50` | `border-black/50` |
-| `divide-opacity-50` | `divide-black/50` |
-| `ring-opacity-50` | `ring-black/50` |
-| `placeholder-opacity-50` | `placeholder-black/50` |
-
-**[Renamed] Flex utilities**
-| v3 (old) | v4 (new) |
-|---|---|
-| `flex-shrink` / `flex-shrink-0` | `shrink` / `shrink-0` |
-| `flex-grow` / `flex-grow-0` | `grow` / `grow-0` |
-
-**[Renamed] Scale shift (⚠️ silently changes appearance)**
-
-v4 adds `xs` to the scale, shifting all existing names up by one step.
-These won't throw errors, making them easy to miss.
-
-| v3 | v4 | Actual size |
-|---|---|---|
-| `shadow-sm` | `shadow-xs` | Small shadow |
-| `shadow` (bare) | `shadow-sm` | Default shadow |
-| `blur-sm` | `blur-xs` | Small blur |
-| `blur` (bare) | `blur-sm` | Default blur |
-| `drop-shadow-sm` | `drop-shadow-xs` | Small drop shadow |
-| `drop-shadow` (bare) | `drop-shadow-sm` | Default drop shadow |
-| `backdrop-blur-sm` | `backdrop-blur-xs` | Small backdrop blur |
-| `backdrop-blur` (bare) | `backdrop-blur-sm` | Default backdrop blur |
-| `rounded-sm` | `rounded-xs` | Small border radius |
-| `rounded` (bare) | `rounded-sm` | Default border radius |
-
-> **Detection tip:** Any use of `shadow`, `blur`, `rounded`, `drop-shadow`, or `backdrop-blur` without a suffix or with `-sm` is a scale-shift candidate. Confirm the project is on v4 before reporting.
-
-**[Changed] Outline**
-| v3 | v4 |
-|---|---|
-| `outline-none` | `outline-hidden` (renamed for accessibility clarity) |
-| `outline outline-2` | `outline-2` (`outline` alone now sets 1px) |
-
-**[Changed] !important modifier position**
-| v3 | v4 |
-|---|---|
-| `!flex` `!bg-red-500` `hover:!bg-red-600` | `flex!` `bg-red-500!` `hover:bg-red-600!` |
-
-**[Changed] CSS variable arbitrary value syntax**
-| v3 | v4 |
-|---|---|
-| `bg-[--brand-color]` | `bg-(--brand-color)` |
-
-**[Renamed] Gradient utilities**
-| v3 (old) | v4 (new) |
-|---|---|
-| `bg-gradient-to-t` | `bg-linear-to-t` |
-| `bg-gradient-to-tr` | `bg-linear-to-tr` |
-| `bg-gradient-to-r` | `bg-linear-to-r` |
-| `bg-gradient-to-br` | `bg-linear-to-br` |
-| `bg-gradient-to-b` | `bg-linear-to-b` |
-| `bg-gradient-to-bl` | `bg-linear-to-bl` |
-| `bg-gradient-to-l` | `bg-linear-to-l` |
-| `bg-gradient-to-tl` | `bg-linear-to-tl` |
-
-**[Changed] Other**
-| v3 | v4 |
-|---|---|
-| `overflow-ellipsis` | `text-ellipsis` |
-| `decoration-slice` | `box-decoration-slice` |
-| `decoration-clone` | `box-decoration-clone` |
+- **[Changed behavior]** `space-x/y-*`, `divide-x/y` — **still available in v4** (not removed); the selector implementation changed, which can affect rendering. Converting to flex/grid + `gap-*` is a recommendation, not a requirement
+- **[Removed]** opacity utilities — `bg-opacity-50` → slash syntax `bg-black/50` (same for text / border / divide / ring / placeholder)
+- **[Renamed]** `flex-shrink` / `flex-grow` → `shrink` / `grow`
+- **[Renamed]** scale shift — `shadow-sm` → `shadow-xs`, bare `shadow` → `shadow-sm`; same for blur / rounded / drop-shadow / backdrop-blur (⚠️ silently changes appearance)
+- **[Changed]** `outline-none` → `outline-hidden`; `!important` position `!flex` → `flex!`; CSS variable syntax `bg-[--var]` → `bg-(--var)`
+- **[Renamed]** gradients — `bg-gradient-to-*` → `bg-linear-to-*`
+- **[Changed]** `overflow-ellipsis` → `text-ellipsis`; `decoration-slice/clone` → `box-decoration-slice/clone`
 
 ---
 
@@ -439,52 +365,7 @@ For scale shifts (shadow/blur/rounded), grep for `shadow\b`, `blur\b`, `rounded\
 
 ### Running Migration (only if "2. Migrate to v4" was chosen in Step 0.5)
 
-Rewrite files rather than just reporting. Follow these steps:
-
-**1. Build the conversion list**
-
-Scan all target files, list every required change, and confirm with the user before applying:
-
-```
-The following conversions will be applied (X total):
-
-  [1] line 12  space-y-4        → flex flex-col gap-4
-  [2] line 18  flex-shrink-0    → shrink-0
-  [3] line 24  shadow-sm        → shadow-xs
-  [4] line 24  rounded          → rounded-sm
-  [5] line 31  bg-opacity-50    → bg-black/50
-  [6] line 45  outline-none     → outline-hidden
-
-Proceed? (yes / exclude by number, e.g. "skip 3, 4")
-```
-
-**2. Apply with the Edit tool once approved**
-
-Edit files directly. No need to confirm each change individually — confirm the list, then apply all at once.
-
-**3. Conversions that require manual judgment (do not auto-apply)**
-
-The following depend on context — present as suggestions and let the user decide:
-
-- `space-y-*` / `space-x-*` → conversion target depends on whether the parent already has `flex`
-- `shadow` (bare) → confirm whether it was intentional in v3 or needs updating (requires design review)
-- `!important` modifier (`!flex` → `flex!`) → high risk of bulk-replace errors if many instances exist
-
-**4. Also suggest updating the CSS entry file**
-
-The CSS syntax changes in v3 → v4 migrations. Check the file and suggest:
-
-```
-[Migration] src/style.css
-  Current:
-    @tailwind base;
-    @tailwind components;
-    @tailwind utilities;
-  Fix:
-    @import "tailwindcss";
-
-Apply this change?
-```
+Read **`references/v3-to-v4.md`** and follow its "Running Migration" procedure: build the full conversion list, confirm with the user, apply with the Edit tool in bulk, handle the manual-judgment cases (`space-x/y`, bare `shadow`, `!important`) as suggestions only, and propose the CSS entry file update (`@tailwind base;` → `@import "tailwindcss";`).
 
 ---
 
@@ -587,89 +468,9 @@ Figma MCP often writes font names directly as arbitrary values. Detect these pat
 
 ### 3-B: Pixel / Unit Scale Mapping
 
-Use the tables below to convert arbitrary px / em / rem values into Tailwind scale utilities.
-Suggest the closest match. If the value falls between steps, mention both neighbours and ask the user to confirm.
+When arbitrary px / em / rem values are found, read **`references/scale-tables.md`** (in this skill's directory) for the full conversion tables — font size, line height, letter spacing, font weight, and spacing/sizing — and suggest the closest scale utility. If the value falls between steps, mention both neighbours and ask the user to confirm.
 
-**Font size (`text-[*]`)**
-
-| Arbitrary | Tailwind utility | Actual size |
-|---|---|---|
-| `text-[10px]` | `text-xs` | 0.75rem / 12px |
-| `text-[12px]` | `text-xs` | 0.75rem / 12px |
-| `text-[14px]` | `text-sm` | 0.875rem / 14px |
-| `text-[16px]` | `text-base` | 1rem / 16px |
-| `text-[18px]` | `text-lg` | 1.125rem / 18px |
-| `text-[20px]` | `text-xl` | 1.25rem / 20px |
-| `text-[24px]` | `text-2xl` | 1.5rem / 24px |
-| `text-[30px]` | `text-3xl` | 1.875rem / 30px |
-| `text-[36px]` | `text-4xl` | 2.25rem / 36px |
-| `text-[48px]` | `text-5xl` | 3rem / 48px |
-| `text-[60px]` | `text-6xl` | 3.75rem / 60px |
-| `text-[72px]` | `text-7xl` | 4.5rem / 72px |
-
-**Line height (`leading-[*]`)**
-
-| Arbitrary | Tailwind utility | Value |
-|---|---|---|
-| `leading-[1]` | `leading-none` | 1 |
-| `leading-[1.25]` | `leading-tight` | 1.25 |
-| `leading-[1.375]` | `leading-snug` | 1.375 |
-| `leading-[1.5]` | `leading-normal` | 1.5 |
-| `leading-[1.625]` | `leading-relaxed` | 1.625 |
-| `leading-[2]` | `leading-loose` | 2 |
-
-**Letter spacing (`tracking-[*]`)**
-
-| Arbitrary | Tailwind utility | Value |
-|---|---|---|
-| `tracking-[-0.05em]` | `tracking-tighter` | -0.05em |
-| `tracking-[-0.025em]` | `tracking-tight` | -0.025em |
-| `tracking-[0em]` | `tracking-normal` | 0em |
-| `tracking-[0.025em]` | `tracking-wide` | 0.025em |
-| `tracking-[0.05em]` | `tracking-wider` | 0.05em |
-| `tracking-[0.1em]` | `tracking-widest` | 0.1em |
-
-**Font weight (`font-[*]`)**
-
-| Arbitrary | Tailwind utility |
-|---|---|
-| `font-[100]` | `font-thin` |
-| `font-[200]` | `font-extralight` |
-| `font-[300]` | `font-light` |
-| `font-[400]` | `font-normal` |
-| `font-[500]` | `font-medium` |
-| `font-[600]` | `font-semibold` |
-| `font-[700]` | `font-bold` |
-| `font-[800]` | `font-extrabold` |
-| `font-[900]` | `font-black` |
-
-**Spacing / sizing — common values (`w-[*]`, `h-[*]`, `p-[*]`, `m-[*]`, `gap-[*]`, etc.)**
-
-| px value | Tailwind scale | rem |
-|---|---|---|
-| 4px | `1` | 0.25rem |
-| 8px | `2` | 0.5rem |
-| 12px | `3` | 0.75rem |
-| 16px | `4` | 1rem |
-| 20px | `5` | 1.25rem |
-| 24px | `6` | 1.5rem |
-| 32px | `8` | 2rem |
-| 40px | `10` | 2.5rem |
-| 48px | `12` | 3rem |
-| 64px | `16` | 4rem |
-| 80px | `20` | 5rem |
-| 96px | `24` | 6rem |
-| 128px | `32` | 8rem |
-| 160px | `40` | 10rem |
-| 192px | `48` | 12rem |
-| 224px | `56` | 14rem |
-| 256px | `64` | 16rem |
-| 288px | `72` | 18rem |
-| 320px | `80` | 20rem |
-| 384px | `96` | 24rem |
-
-> **Tip:** Tailwind spacing scale follows `1 unit = 4px`. Divide px by 4 to get the scale number.
-> If the result is a whole number, a standard utility exists. If not, keep the arbitrary value.
+> **Tip:** Tailwind spacing scale follows `1 unit = 4px`. Divide px by 4 — a whole number means a standard utility exists; otherwise keep the arbitrary value. For obvious cases like this, the table lookup can be skipped.
 
 **Report format:**
 ```
@@ -689,59 +490,8 @@ Even when no `@theme` variables are defined, compare hardcoded hex / rgb color v
 
 **Matching approach:**
 1. Extract the hex value from the arbitrary class
-2. Compare against the reference table below (exact match first, then nearest by hex distance)
+2. Read **`references/color-table.md`** (in this skill's directory) and compare (exact match first, then nearest by hex distance)
 3. If the match is approximate, flag it with "(approximate)" and ask the user to confirm visually
-
-**Common Tailwind color reference (hex → utility)**
-
-| Hex | Utility |
-|---|---|
-| `#f9fafb` | `gray-50` |
-| `#f3f4f6` | `gray-100` |
-| `#e5e7eb` | `gray-200` |
-| `#d1d5db` | `gray-300` |
-| `#9ca3af` | `gray-400` |
-| `#6b7280` | `gray-500` |
-| `#4b5563` | `gray-600` |
-| `#374151` | `gray-700` |
-| `#1f2937` | `gray-800` |
-| `#111827` | `gray-900` |
-| `#eff6ff` | `blue-50` |
-| `#dbeafe` | `blue-100` |
-| `#bfdbfe` | `blue-200` |
-| `#93c5fd` | `blue-300` |
-| `#60a5fa` | `blue-400` |
-| `#3b82f6` | `blue-500` |
-| `#2563eb` | `blue-600` |
-| `#1d4ed8` | `blue-700` |
-| `#1e40af` | `blue-800` |
-| `#1e3a8a` | `blue-900` |
-| `#fef2f2` | `red-50` |
-| `#fee2e2` | `red-100` |
-| `#fca5a5` | `red-300` |
-| `#f87171` | `red-400` |
-| `#ef4444` | `red-500` |
-| `#dc2626` | `red-600` |
-| `#b91c1c` | `red-700` |
-| `#f0fdf4` | `green-50` |
-| `#dcfce7` | `green-100` |
-| `#86efac` | `green-300` |
-| `#4ade80` | `green-400` |
-| `#22c55e` | `green-500` |
-| `#16a34a` | `green-600` |
-| `#15803d` | `green-700` |
-| `#fefce8` | `yellow-50` |
-| `#fef9c3` | `yellow-100` |
-| `#fde047` | `yellow-300` |
-| `#facc15` | `yellow-400` |
-| `#eab308` | `yellow-500` |
-| `#ca8a04` | `yellow-600` |
-| `#ffffff` | `white` |
-| `#000000` | `black` |
-| `transparent` | `transparent` |
-
-> For colors not in the table, use the closest match by visual hex proximity and mark it as approximate.
-> Note: Tailwind v4 includes an extended palette (slate, zinc, stone, sky, indigo, violet, purple, fuchsia, pink, rose, emerald, teal, cyan, lime, amber, orange) — apply the same matching logic for those.
 
 **Report format — exact match:**
 ```
@@ -943,5 +693,5 @@ Would you like to apply auto-fixable items (redundancy, v4 migration, scale conv
 
 - **Framework-agnostic**: Both `class=` (HTML/Vue/Astro) and `className=` (React) are in scope
 - **Custom classes**: Classes defined via `@apply` are not Tailwind utilities and are excluded from redundancy checks
-- **Context matters**: Even `space-y-*` may be intentional — strongly recommend the v4 migration path but explain the impact
+- **Context matters**: `space-y-*` still works in v4 and may be intentional — recommend converting to `gap-*` but explain the impact and let the user decide
 - **Missing `@theme`**: If no theme file is found, report it and skip the design token check

@@ -75,7 +75,11 @@ Priority 4  →  Keep arbitrary value, flag for design system definition
 ```
 skills/
   tailwind-review/
-    SKILL.md          — skill definition loaded by Claude Code
+    SKILL.md          — skill definition loaded by Claude Code (flow + detection + report formats)
+    references/
+      v3-to-v4.md     — v3→v4 conversion tables + migration procedure (loaded on detection hits)
+      scale-tables.md — px/em/rem → Tailwind scale tables (loaded when arbitrary values found)
+      color-table.md  — hex → built-in color table (loaded when hardcoded colors found)
     evals/
       evals.json      — test case definitions
       files/
