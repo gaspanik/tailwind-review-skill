@@ -44,10 +44,7 @@ After displaying this message, proceed immediately to Step 0 — do not wait for
 Before reviewing, check whether a **`DESIGN.md`** exists in the project root.
 This file may define the project's design tokens (colors, typography, spacing) and takes the highest priority in Dimension 3 suggestions.
 
-```bash
-# Check for DESIGN.md in common locations
-ls DESIGN.md 2>/dev/null || ls docs/DESIGN.md 2>/dev/null || ls .design/DESIGN.md 2>/dev/null
-```
+Check whether `DESIGN.md` exists — look in the project root, then `docs/`, then `.design/`.
 
 **If found:**
 - Read the full file
@@ -70,16 +67,9 @@ This determines how Dimension 2 (v3→v4 migration check) is handled.
 
 **Detection steps (check in order, stop at first match):**
 
-```bash
-# 1. Check version in package.json
-cat package.json | grep '"tailwindcss"'
-
-# 2. Check for tailwind.config.js (a v3 indicator)
-ls tailwind.config.js 2>/dev/null && echo "found"
-
-# 3. Check import style in CSS entry file
-grep -r "@tailwind\|@import.*tailwindcss" src/ --include="*.css" | head -5
-```
+1. Check the `"tailwindcss"` entry in `package.json` for the version
+2. Check whether `tailwind.config.js` exists in the project root
+3. Search for CSS files under `src/` containing `@tailwind` or `@import "tailwindcss"`
 
 **Decision criteria:**
 
@@ -125,9 +115,7 @@ If v3 patterns are found in a v4 project, report them as bugs.
 
 If no files are specified, search the project for HTML / JSX / TSX / Vue / Svelte files containing Tailwind classes.
 
-```bash
-grep -rl "class=" . --include="*.html" --include="*.tsx" --include="*.jsx" --include="*.vue" --include="*.astro" | grep -v "node_modules" | grep -v "dist"
-```
+Enumerate `.html` / `.tsx` / `.jsx` / `.vue` / `.astro` files containing `class=` across the project (excluding `node_modules` / `dist`).
 
 ### Step 1.5: Confirm Review Scope (HTML files only)
 
